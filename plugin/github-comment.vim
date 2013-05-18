@@ -13,3 +13,41 @@ function! s:CommitShaForCurrentLine()
 
   return matchstr(blame_text, '\w\+')
 endfunction
+
+function! s:GetAuthHeader()
+  let token = ""
+  if filereadable(s:tokenfile)
+    let token = join(readfile(s:tokenfile), "")
+  endif
+  if len(token) > 0
+    return token
+  endif
+
+  let password = inputsecret("Github password for ".g:github_user.":")
+  if len(password) > 0
+    let authorization = s:Authorize(password)
+
+    if has_key(authorization, 'token')
+      let token = printf("token %s", authorization.token)
+      execute s:WriteToken(token)
+    endif
+  endif
+
+  return token
+endfunction
+
+function! s:WriteToken(token)
+  call writefile([a:token], s:tokenfile)
+  call system("chmod go= ".s:tokenfile)
+endfunction
+
+function! s:Authorize(password)
+  let auth = printf("basic %s", webapi#base64#b64encode(g:github_user.":".a:password))
+  let response = webapi#http#post('https://api.github.com/authorizations', webapi#json#encode({
+                  \  "scopes"        : ["repo"],
+                  \}), {
+                  \  "Content-Type"  : "application/json",
+                  \  "Authorization" : auth,
+                  \})
+  return webapi#json#decode(response.content)
+endfunction
