@@ -21,6 +21,37 @@ if !executable('curl')
   finish
 endif
 
+com! -nargs=+ GHComment call GHComment(<q-args>)
+
+function! GHComment(body)
+  let auth = s:GetAuthHeader()
+  if len(auth) == 0
+    echohl ErrorMsg | echomsg "github-comment auth failed" | echohl None
+    return
+  endif
+
+  let repo = 'vimfiles' " TODO
+  let commit_sha = s:CommitShaForCurrentLine()
+  let path = "README.md" " TODO
+  let linenumber = line('.')
+  let comment = a:body
+
+  execute s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
+endfunction
+
+function! s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
+  let request_uri = 'https://api.github.com/repos/'.g:github_user.'/'.a:repo.'/commits/'.a:commit_sha.'/comments'
+
+  let response = webapi#http#post(request_uri, webapi#json#encode({
+                  \  "path" : a:path,
+                  \  "line" : a:linenumber,
+                  \  "body" : a:comment
+                  \}), {
+                  \   "Authorization": a:auth,
+                  \   "Content-Type": "application/json",
+                  \})
+endfunction
+
 function! s:CommitShaForCurrentLine()
   let linenumber=line('.')
   let path=expand('%:p')
