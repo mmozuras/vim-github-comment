@@ -4,6 +4,23 @@
 " Readme:         https://github.com/mmozuras/vim-github-comment/blob/master/README.md
 " Version:        0.0.1
 
+let s:tokenfile = expand('~/.github-comment')
+
+if !executable('git')
+  echohl ErrorMsg | echomsg "github-comment requires 'git'" | echohl None
+  finish
+endif
+
+if !exists('g:github_user')
+  echohl ErrorMsg | echomsg "github-comment requires 'g:github_user' to be set" | echohl None
+  finish
+endif
+
+if !executable('curl')
+  echohl ErrorMsg | echomsg "github-comment requires 'curl'" | echohl None
+  finish
+endif
+
 function! s:CommitShaForCurrentLine()
   let linenumber=line('.')
   let path=expand('%:p')
