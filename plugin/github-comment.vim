@@ -32,7 +32,7 @@ function! GHComment(body)
 
   let repo = 'vimfiles' " TODO
   let commit_sha = s:CommitShaForCurrentLine()
-  let path = "README.md" " TODO
+  let path = s:GetRelativePathOfBufferInRepository()
   let linenumber = line('.')
   let comment = a:body
 
@@ -98,4 +98,28 @@ function! s:Authorize(password)
                   \  "Authorization" : auth,
                   \})
   return webapi#json#decode(response.content)
+endfunction
+
+function! s:GetRelativePathOfBufferInRepository()
+  let buffer_path = expand("%:p")
+  let git_dir = s:GetGitTopDir()."/"
+
+  return substitute(buffer_path, git_dir, "", "")
+endfunction
+
+function! s:GetGitTopDir()
+  let buffer_path = expand("%:p")
+  let buf = split(buffer_path, "/")
+
+  while len(buf) > 0
+    let path = "/".join(buf, "/")
+
+    if empty(finddir(path."/.git"))
+      call remove(buf, -1)
+    else
+      return path
+    endif
+  endwhile
+
+  return ""
 endfunction
