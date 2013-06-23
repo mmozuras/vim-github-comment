@@ -37,7 +37,13 @@ function! GHComment(body)
   let comment = a:body
   let save_view = winsaveview()
 
-  execute s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
+  let status = s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
+
+  if status == 201
+    echomsg "Comment created"
+  else
+    echohl ErrorMsg | echomsg "Could not create comment. You may not have the rights." | echohl None
+  endif
 
   call winrestview(save_view)
 endfunction
@@ -53,6 +59,7 @@ function! s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
                   \   "Authorization": a:auth,
                   \   "Content-Type": "application/json",
                   \})
+  return response.status
 endfunction
 
 function! s:GitHubRepository()
@@ -85,7 +92,7 @@ function! s:GetAuthHeader()
     return token
   endif
 
-  let password = inputsecret("GitHub password for ".g:github_user.":")
+  let password = inputsecret("GitHub password for ".g:github_user.": ")
   if len(password) > 0
     let authorization = s:Authorize(password)
 
@@ -101,6 +108,7 @@ endfunction
 function! s:WriteToken(token)
   call writefile([a:token], s:tokenfile)
   call system("chmod go= ".s:tokenfile)
+  echomsg printf(" -> wrote token to %s", s:tokenfile)
 endfunction
 
 function! s:Authorize(password)
