@@ -16,11 +16,13 @@ vim-github-comment requires [webapi], so if you don't have it in your bundle yet
 
     git clone git://github.com/mattn/webapi-vim.git bundle/webapi
 
+## Setup
+
 Add the following into your ~/.vimrc
 
     let g:github_user = 'mmozuras'
 
-You can always run `help` to get more info:
+You can always run `help` to get more information about vim-github-comment:
 
     :help github-comment
 
