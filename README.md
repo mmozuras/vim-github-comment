@@ -1,6 +1,6 @@
 # vim-github-comment
 
-Want to write [GitHub] comments straight from [Vim]? You can now. After [installation](#installation), from inside vim, just run `:GHComment <your-comment-here>`. This will create a comment on the commit that changed that line last.
+Want to write comment commits on [GitHub] straight from [Vim]? You can now. After [installation](#installation), from inside vim, just run `:GHComment <your-comment-here>`. This will create a comment on the commit that changed that line last.
 
 ![vim-github-comment demo](/doc/vim-github-comment.gif "")
 

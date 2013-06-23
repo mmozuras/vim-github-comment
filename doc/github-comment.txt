@@ -5,7 +5,7 @@ Install                                        |github-comment-install|
 Requirements                                   |github-comment-requirements|
 Setup                                          |github-comment-setup|
 
-This is a vimscript to comment on GitHub straight from within Vim.
+This is a vimscript to comment commits on GitHub using Vim.
 
 For the latest version please see
 https://github.com/mmozuras/vim-github-comment.
