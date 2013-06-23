@@ -30,17 +30,20 @@ function! GHComment(body)
     return
   endif
 
-  let repo = 'vimfiles' " TODO
+  let repo = s:GitHubRepository()
   let commit_sha = s:CommitShaForCurrentLine()
   let path = s:GetRelativePathOfBufferInRepository()
   let linenumber = line('.')
   let comment = a:body
+  let save_view = winsaveview()
 
   execute s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
+
+  call winrestview(save_view)
 endfunction
 
 function! s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
-  let request_uri = 'https://api.github.com/repos/'.g:github_user.'/'.a:repo.'/commits/'.a:commit_sha.'/comments'
+  let request_uri = 'https://api.github.com/repos/'.a:repo.'/commits/'.a:commit_sha.'/comments'
 
   let response = webapi#http#post(request_uri, webapi#json#encode({
                   \  "path" : a:path,
@@ -50,6 +53,17 @@ function! s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
                   \   "Authorization": a:auth,
                   \   "Content-Type": "application/json",
                   \})
+endfunction
+
+function! s:GitHubRepository()
+  let cmd = 'git ls-remote --get-url'
+  let remote = system(cmd)
+
+  let name = split(remote, 'git://github\.com/')[0]
+  let name = split(name, 'git@github\.com:')[0]
+  let name = split(name, '\.git')[0]
+
+  return name
 endfunction
 
 function! s:CommitShaForCurrentLine()
@@ -71,7 +85,7 @@ function! s:GetAuthHeader()
     return token
   endif
 
-  let password = inputsecret("Github password for ".g:github_user.":")
+  let password = inputsecret("GitHub password for ".g:github_user.":")
   if len(password) > 0
     let authorization = s:Authorize(password)
 
