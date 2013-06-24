@@ -34,11 +34,10 @@ function! GHComment(body)
   let commit_sha = s:CommitShaForCurrentLine()
   let path = s:GetRelativePathOfBufferInRepository()
   let diff_position = s:GetDiffLineNumber(commit_sha, path)
-  let linenumber = line('.')
   let comment = a:body
   let save_view = winsaveview()
 
-  let status = s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, diff_position, comment)
+  let status = s:CommentOnGitHub(auth, repo, commit_sha, path, diff_position, comment)
 
   if status == 201
     echomsg "Comment created"
@@ -49,12 +48,11 @@ function! GHComment(body)
   call winrestview(save_view)
 endfunction
 
-function! s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, diff_position, comment)
+function! s:CommentOnGitHub(auth, repo, commit_sha, path, diff_position, comment)
   let request_uri = 'https://api.github.com/repos/'.a:repo.'/commits/'.a:commit_sha.'/comments'
 
   let response = webapi#http#post(request_uri, webapi#json#encode({
                   \  "path" : a:path,
-                  \  "line" : a:linenumber,
                   \  "position" : a:diff_position,
                   \  "body" : a:comment
                   \}), {
@@ -76,8 +74,8 @@ function! s:GitHubRepository()
 endfunction
 
 function! s:CommitShaForCurrentLine()
-  let linenumber=line('.')
-  let path=expand('%:p')
+  let linenumber = line('.')
+  let path = expand('%:p')
 
   let cmd = 'git blame -L'.linenumber.','.linenumber.' --porcelain '.path
   let blame_text = system(cmd)
