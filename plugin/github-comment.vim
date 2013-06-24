@@ -33,11 +33,12 @@ function! GHComment(body)
   let repo = s:GitHubRepository()
   let commit_sha = s:CommitShaForCurrentLine()
   let path = s:GetRelativePathOfBufferInRepository()
+  let diff_position = s:GetDiffLineNumber(commit_sha, path)
   let linenumber = line('.')
   let comment = a:body
   let save_view = winsaveview()
 
-  let status = s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
+  let status = s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, diff_position, comment)
 
   if status == 201
     echomsg "Comment created"
@@ -48,12 +49,13 @@ function! GHComment(body)
   call winrestview(save_view)
 endfunction
 
-function! s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, comment)
+function! s:CommentOnGitHub(auth, repo, commit_sha, path, linenumber, diff_position, comment)
   let request_uri = 'https://api.github.com/repos/'.a:repo.'/commits/'.a:commit_sha.'/comments'
 
   let response = webapi#http#post(request_uri, webapi#json#encode({
                   \  "path" : a:path,
                   \  "line" : a:linenumber,
+                  \  "position" : a:diff_position,
                   \  "body" : a:comment
                   \}), {
                   \   "Authorization": a:auth,
@@ -81,6 +83,14 @@ function! s:CommitShaForCurrentLine()
   let blame_text = system(cmd)
 
   return matchstr(blame_text, '\w\+')
+endfunction
+
+function! s:GetDiffLineNumber(commit_sha, path)
+  let line = getline('.')
+  let cmd = 'git show --oneline '.a:commit_sha.' '.a:path.' | grep -nFx '.shellescape('+'.line)
+  let diff_text = system(cmd)
+  let split_line = split(diff_text, ':')
+  return split_line[0] - 6
 endfunction
 
 function! s:GetAuthHeader()
