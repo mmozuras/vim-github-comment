@@ -1,4 +1,4 @@
-*github-comment* Vimscript for creating GitHub comments
+*github-comment* Vimscript for commenting on GitHub from Vim
 
 Usage                                          |github-comment-usage|
 Install                                        |github-comment-install|
@@ -44,4 +44,9 @@ SETUP                                                       *github-comment-setu
 Add the following into your ~/.vimrc
 >
     let g:github_user = 'mmozuras'
+<
+
+Optionally, browser can be opened with your comment after you post it
+>
+    let g:github_comment_open_browser = 1
 <

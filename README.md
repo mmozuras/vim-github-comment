@@ -20,7 +20,11 @@ vim-github-comment requires [webapi], so if you don't have it in your bundle yet
 
 Add the following into your ~/.vimrc
 
-    let g:github_user = 'mmozuras'
+    let g:github_user = '<your-github-username-here>'
+
+Optionally, browser can be opened with your comment after you post it:
+
+    let g:github_comment_open_browser = 1
 
 You can always run `help` to get more information about vim-github-comment:
 
