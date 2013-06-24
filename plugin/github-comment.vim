@@ -42,6 +42,10 @@ function! GHComment(body)
   if response.status == 201
     let body = webapi#json#decode(response.content)
     let html_url = body['html_url']
+    if get(g:, 'github_comment_open_browser', 0) == 1
+      call s:OpenBrowser(html_url)
+    endif
+
     echomsg "Comment created: ".html_url
   else
     echohl ErrorMsg | echomsg "Could not create comment. You may not have the rights." | echohl None
@@ -155,4 +159,22 @@ function! s:GetGitTopDir()
   endwhile
 
   return ""
+endfunction
+
+function! s:OpenBrowser(url)
+  if has('win32') || has('win64')
+    let cmd = '!start rundll32 url.dll,FileProtocolHandler '.shellescape(a:url)
+    silent! exec cmd
+  elseif has('mac') || has('macunix') || has('gui_macvim')
+    let cmd = 'open '.shellescape(a:url)
+    call system(cmd)
+  elseif executable('xdg-open')
+    let cmd = 'xdg-open '.shellescape(a:url)
+    call system(cmd)
+  elseif executable('firefox')
+    let cmd = 'firefox '.shellescape(a:url).' &'
+    call system(cmd)
+  else
+    echohl WarningMsg | echomsg "That's weird. It seems that you don't have a web browser." | echohl None
+  end
 endfunction
