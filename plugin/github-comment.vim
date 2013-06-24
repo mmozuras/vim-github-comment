@@ -37,10 +37,12 @@ function! GHComment(body)
   let comment = a:body
   let save_view = winsaveview()
 
-  let status = s:CommentOnGitHub(auth, repo, commit_sha, path, diff_position, comment)
+  let response = s:CommentOnGitHub(auth, repo, commit_sha, path, diff_position, comment)
 
-  if status == 201
-    echomsg "Comment created"
+  if response.status == 201
+    let body = webapi#json#decode(response.content)
+    let html_url = body['html_url']
+    echomsg "Comment created: ".html_url
   else
     echohl ErrorMsg | echomsg "Could not create comment. You may not have the rights." | echohl None
   endif
@@ -59,7 +61,8 @@ function! s:CommentOnGitHub(auth, repo, commit_sha, path, diff_position, comment
                   \   "Authorization": a:auth,
                   \   "Content-Type": "application/json",
                   \})
-  return response.status
+
+  return response
 endfunction
 
 function! s:GitHubRepository()
