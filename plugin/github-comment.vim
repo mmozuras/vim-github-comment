@@ -21,6 +21,14 @@ if !executable('curl')
   finish
 endif
 
+" webapi uses autoload to define its functions, so they don't exist until they
+" are called.
+silent! call webapi#json#decode('{}')
+if !exists('*webapi#json#decode')
+  echohl ErrorMsg | echomsg "github-comment requires webapi (https://github.com/mattn/webapi-vim)" | echohl None
+  finish
+endif
+
 com! -nargs=+ GHComment call GHComment(<q-args>)
 
 function! GHComment(body)
