@@ -123,6 +123,9 @@ function! s:GetAuthHeader()
     if has_key(authorization, 'token')
       let token = printf("token %s", authorization.token)
       execute s:WriteToken(token)
+    elseif has_key(authorization, 'message')
+      redraw
+      echohl ErrorMsg | echomsg authorization.message | echohl None
     endif
   endif
 
@@ -137,13 +140,20 @@ endfunction
 
 function! s:Authorize(password)
   let auth = printf("basic %s", webapi#base64#b64encode(g:github_user.":".a:password))
-  let response = webapi#http#post('https://api.github.com/authorizations', webapi#json#encode({
-                  \  "scopes"        : ["repo"],
-                  \  "note"          : "vim-github-comment Authorization",
-                  \}), {
-                  \  "Content-Type"  : "application/json",
-                  \  "Authorization" : auth,
-                  \})
+
+  let auth_url = 'https://api.github.com/authorizations'
+  let data = webapi#json#encode({ "scopes" : ["repo"], "note" : "vim-github-comment Authorization" })
+  let header = { "Content-Type" : "application/json", "Authorization" : auth }
+
+  let response = webapi#http#post(auth_url, data, header)
+
+  let otp = filter(response.header, 'stridx(v:val, "X-GitHub-OTP:") == 0')
+  if len(otp)
+    let otp_token = inputsecret("GitHub authentication token: ")
+    let header["X-GitHub-OTP"] = otp_token
+    let response = webapi#http#post(auth_url, data, header)
+  endif
+
   return webapi#json#decode(response.content)
 endfunction
 
