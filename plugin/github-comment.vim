@@ -2,7 +2,7 @@
 " Author:         mmozuras
 " HomePage:       https://github.com/mmozuras/vim-github-comment
 " Readme:         https://github.com/mmozuras/vim-github-comment/blob/master/README.md
-" Version:        0.0.3
+" Version:        0.0.4
 
 let s:tokenfile = expand('~/.github-comment')
 
