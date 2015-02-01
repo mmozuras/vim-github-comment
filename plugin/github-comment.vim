@@ -6,13 +6,22 @@
 
 let s:tokenfile = expand('~/.github-comment')
 
-if !executable('git')
+if !exists('g:github_user') && !executable('git')
   echohl ErrorMsg | echomsg "github-comment requires 'git'" | echohl None
   finish
 endif
 
+let s:system = function(get(g:, 'webapi#system_function', 'system'))
+
 if !exists('g:github_user')
-  echohl ErrorMsg | echomsg "github-comment requires 'g:github_user' to be set" | echohl None
+  let g:github_user = substitute(s:system('git config --get github.user'), "\n", '', '')
+  if strlen(g:github_user) == 0
+    let g:github_user = $GITHUB_USER
+  end
+endif
+
+if strlen(g:github_user) == 0
+  echohl ErrorMsg | echomsg "github-comment requires a github account. Set g:github_user or github.user in .gitconfig." | echohl None
   finish
 endif
 
