@@ -18,7 +18,8 @@ vim-github-comment requires [webapi], so if you don't have it in your bundle yet
 
 ## Setup
 
-Add the following into your ~/.vimrc
+If you don't have `github.user` set in your `.gitconfig`, add the following
+into your ~/.vimrc
 
     let g:github_user = '<your-github-username-here>'
 
