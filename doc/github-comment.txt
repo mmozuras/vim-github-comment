@@ -41,9 +41,10 @@ REQUIREMENTS                                           *github-comment-requireme
 ==============================================================================
 SETUP                                                       *github-comment-setup*
 
-Add the following into your ~/.vimrc
+If you don't have `github.user` set in your `.gitconfig`, add the following
+into your ~/.vimrc
 >
-    let g:github_user = 'mmozuras'
+    let g:github_user = '<your-github-username-here>'
 <
 
 Optionally, browser can be opened with your comment after you post it
