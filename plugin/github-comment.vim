@@ -94,6 +94,7 @@ function! s:GitHubRepository()
   let name = split(remote, 'git://github\.com/')[0]
   let name = split(name, 'git@github\.com:')[0]
   let name = split(name, '\.git')[0]
+  let name = substitute(name, '\n\+$', '', '')
 
   return name
 endfunction
